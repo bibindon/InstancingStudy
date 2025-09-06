@@ -12,6 +12,7 @@ sampler textureSampler = sampler_state {
 void VertexShader1(in  float4 inPosition  : POSITION,
                    in  float4 inNormal    : NORMAL0,
                    in  float4 inTexCood   : TEXCOORD0,
+                   in  float2 inWorldPos  : TEXCOORD1,
 
                    out float4 outPosition : POSITION,
                    out float4 outDiffuse  : COLOR0,

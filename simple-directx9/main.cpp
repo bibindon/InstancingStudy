@@ -25,11 +25,38 @@ DWORD g_dwNumMaterials = 0;
 LPD3DXEFFECT g_pEffect = NULL;
 bool g_bClose = false;
 
+struct WorldPos
+{
+    float x;
+    float y;
+};
+
+WorldPos* m_worldPos;
+IDirect3DVertexBuffer9* m_worldPosBuf;
+IDirect3DVertexDeclaration9* m_decl;
+
+const int W = 100;
+const int H = 100;
+const int tipNum = W * H;               // スクリーン上のチップ総数
+
 static void TextDraw(LPD3DXFONT pFont, TCHAR* text, int X, int Y);
 static void InitD3D(HWND hWnd);
 static void Cleanup();
 static void Render();
 LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
+static void copyBuf(unsigned sz, void* src, IDirect3DVertexBuffer9* buf)
+{
+    void* p = 0;
+    buf->Lock(0, 0, &p, 0);
+    memcpy(p, src, sz);
+    buf->Unlock();
+}
+
+extern int WINAPI _tWinMain(_In_ HINSTANCE hInstance,
+                            _In_opt_ HINSTANCE hPrevInstance,
+                            _In_ LPTSTR lpCmdLine,
+                            _In_ int nCmdShow);
 
 int WINAPI _tWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
@@ -248,6 +275,51 @@ void InitD3D(HWND hWnd)
                                        NULL);
 
     assert(hResult == S_OK);
+
+    // ワールド座標位置バッファ
+    WorldPos* worldPos = new WorldPos[tipNum];
+
+    for (int w = 0; w < W; w++)
+    {
+        for (int h = 0; h < H; h++)
+        {
+            int e = h * W + w;
+            worldPos[e].x = 5.f * (w - 50);
+            worldPos[e].y = 5.f * (h - 50);
+        }
+    }
+
+    g_pd3dDevice->CreateVertexBuffer(sizeof(WorldPos) * tipNum,
+                                     0,
+                                     0,
+                                     D3DPOOL_MANAGED,
+                                     &m_worldPosBuf,
+                                     0);
+
+    copyBuf(sizeof(WorldPos) * tipNum, worldPos, m_worldPosBuf);
+
+    delete[] worldPos;
+
+    // 頂点宣言作成
+    D3DVERTEXELEMENT9 declElems[] =
+    {
+        // POSITION
+        { 0, 0, D3DDECLTYPE_FLOAT4, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, 0 },
+
+        // NORMAL0
+        { 0, 4, D3DDECLTYPE_FLOAT4, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_NORMAL, 0 },
+
+        // TEXCOORD0
+        { 0, 8, D3DDECLTYPE_FLOAT4, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TEXCOORD, 0 },
+
+        // TEXCOORD1
+        // ワールド位置
+        { 1, 0, D3DDECLTYPE_FLOAT2, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TEXCOORD, 1 },
+
+        D3DDECL_END()
+    };
+
+    g_pd3dDevice->CreateVertexDeclaration(declElems, &m_decl);
 }
 
 void Cleanup()
@@ -289,6 +361,10 @@ void Render()
 
     hResult = g_pEffect->SetMatrix("g_matWorldViewProj", &mat);
     assert(hResult == S_OK);
+
+    g_pd3dDevice->SetStreamSourceFreq(0, D3DSTREAMSOURCE_INSTANCEDATA | 1);
+    g_pd3dDevice->SetVertexDeclaration(m_decl);
+    g_pd3dDevice->SetStreamSource(0, m_worldPosBuf, 0, sizeof(WorldPos));
 
     hResult = g_pd3dDevice->Clear(0,
                                   NULL,
@@ -333,6 +409,8 @@ void Render()
 
     hResult = g_pEffect->End();
     assert(hResult == S_OK);
+
+    g_pd3dDevice->SetStreamSourceFreq(0, 1);
 
     hResult = g_pd3dDevice->EndScene();
     assert(hResult == S_OK);
