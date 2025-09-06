@@ -12,7 +12,7 @@ sampler textureSampler = sampler_state {
 void VertexShader1(in  float4 inPosition  : POSITION,
                    in  float4 inNormal    : NORMAL0,
                    in  float4 inTexCood   : TEXCOORD0,
-                   in  float2 inWorldPos  : TEXCOORD1,
+                   in  float3 inWorldPos  : TEXCOORD1,
 
                    out float4 outPosition : POSITION,
                    out float4 outDiffuse  : COLOR0,
@@ -20,6 +20,7 @@ void VertexShader1(in  float4 inPosition  : POSITION,
 {
     inPosition.x += inWorldPos.x;
     inPosition.y += inWorldPos.y;
+    inPosition.z += inWorldPos.z;
     outPosition = mul(inPosition, g_matWorldViewProj);
 
     float lightIntensity = dot(inNormal, g_lightNormal);
@@ -43,7 +44,7 @@ technique Technique1
 {
    pass Pass1
    {
-      VertexShader = compile vs_2_0 VertexShader1();
-      PixelShader = compile ps_2_0 PixelShader1();
+      VertexShader = compile vs_3_0 VertexShader1();
+      PixelShader = compile ps_3_0 PixelShader1();
    }
 }

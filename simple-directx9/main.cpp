@@ -29,6 +29,7 @@ struct WorldPos
 {
     float x;
     float y;
+    float z;
 };
 
 WorldPos* m_worldPos;
@@ -37,7 +38,8 @@ IDirect3DVertexDeclaration9* m_decl;
 
 const int W = 100;
 const int H = 100;
-const int tipNum = W * H;               // スクリーン上のチップ総数
+const int D = 100;
+const int tipNum = W * H * D;               // スクリーン上のチップ総数
 
 static void TextDraw(LPD3DXFONT pFont, TCHAR* text, int X, int Y);
 static void InitD3D(HWND hWnd);
@@ -279,13 +281,17 @@ void InitD3D(HWND hWnd)
     // ワールド座標位置バッファ
     WorldPos* worldPos = new WorldPos[tipNum];
 
-    for (int w = 0; w < W; w++)
+    for (int d = 0; d < D; d++)
     {
-        for (int h = 0; h < H; h++)
+        for (int w = 0; w < W; w++)
         {
-            int e = h * W + w;
-            worldPos[e].x = 5.f * (w - 50);
-            worldPos[e].y = 5.f * (h - 50);
+            for (int h = 0; h < H; h++)
+            {
+                int e = H * W * d + h * W + w;
+                worldPos[e].x = 10.f * (w - (W / 2));
+                worldPos[e].y = 10.f * (h - (H / 2));
+                worldPos[e].z = 10.f * (d - (D / 2));
+            }
         }
     }
 
@@ -314,7 +320,7 @@ void InitD3D(HWND hWnd)
 
         // TEXCOORD1
         // ワールド位置
-        { 1, 0, D3DDECLTYPE_FLOAT2, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TEXCOORD, 1 },
+        { 1, 0, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TEXCOORD, 1 },
 
         D3DDECL_END()
     };
@@ -352,7 +358,7 @@ void Render()
                                1.0f,
                                10000.0f);
 
-    D3DXVECTOR3 vec1(10 * sinf(f), 10, -10 * cosf(f));
+    D3DXVECTOR3 vec1(2000 * sinf(f), 100, -2000 * cosf(f));
     D3DXVECTOR3 vec2(0, 0, 0);
     D3DXVECTOR3 vec3(0, 1, 0);
     D3DXMatrixLookAtLH(&View, &vec1, &vec2, &vec3);
