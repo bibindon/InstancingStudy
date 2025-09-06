@@ -362,12 +362,23 @@ void Render()
     hResult = g_pEffect->SetMatrix("g_matWorldViewProj", &mat);
     assert(hResult == S_OK);
 
-//    g_pd3dDevice->SetStreamSourceFreq(0, D3DSTREAMSOURCE_INSTANCEDATA | 1);
-//    g_pd3dDevice->SetStreamSource(0, m_worldPosBuf, 0, sizeof(WorldPos));
+    LPDIRECT3DVERTEXBUFFER9 pVB = nullptr;
+    g_pMesh->GetVertexBuffer(&pVB);
+    g_pd3dDevice->SetStreamSource(0, pVB, 0, g_pMesh->GetNumBytesPerVertex());
+    pVB->Release();
 
     g_pd3dDevice->SetStreamSource(1, m_worldPosBuf, 0, sizeof(WorldPos));
+
     g_pd3dDevice->SetVertexDeclaration(m_decl);
-    g_pd3dDevice->SetStreamSourceFreq(1, D3DSTREAMSOURCE_INSTANCEDATA | tipNum);
+
+    g_pd3dDevice->SetStreamSourceFreq(0, D3DSTREAMSOURCE_INDEXEDDATA | tipNum);
+    g_pd3dDevice->SetStreamSourceFreq(1, D3DSTREAMSOURCE_INSTANCEDATA | 1);
+
+    // インデックスバッファをセット
+    LPDIRECT3DINDEXBUFFER9 pIB = nullptr;
+    g_pMesh->GetIndexBuffer(&pIB);
+    g_pd3dDevice->SetIndices(pIB);
+    pIB->Release();
 
     hResult = g_pd3dDevice->Clear(0,
                                   NULL,
@@ -403,7 +414,17 @@ void Render()
         hResult = g_pEffect->CommitChanges();
         assert(hResult == S_OK);
 
-        hResult = g_pMesh->DrawSubset(i);
+        DWORD numVertices = g_pMesh->GetNumVertices();
+        DWORD numFaces = g_pMesh->GetNumFaces();
+
+        // 描画 (インスタンス数は SetStreamSourceFreq で決まる)
+        g_pd3dDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST,
+                                           0,
+                                           0,
+                                           g_pMesh->GetNumVertices(),
+                                           0,
+                                           g_pMesh->GetNumFaces() );
+
         assert(hResult == S_OK);
     }
 
