@@ -56,7 +56,7 @@ int WINAPI _tWinMain(_In_ HINSTANCE hInstance,
     assert(atom != 0);
 
     RECT rect;
-    SetRect(&rect, 0, 0, 640, 480);
+    SetRect(&rect, 0, 0, 1600, 900);
     AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, FALSE);
     rect.right = rect.right - rect.left;
     rect.bottom = rect.bottom - rect.top;
@@ -276,11 +276,11 @@ void Render()
 
     D3DXMatrixPerspectiveFovLH(&Proj,
                                D3DXToRadian(45),
-                               640.0f / 480.0f,
+                               1600.0f / 900.0f,
                                1.0f,
                                10000.0f);
 
-    D3DXVECTOR3 vec1(10 * sinf(f), 10, -10 * cosf(f));
+    D3DXVECTOR3 vec1(20 * sinf(f), 20, -20 * cosf(f));
     D3DXVECTOR3 vec2(0, 0, 0);
     D3DXVECTOR3 vec3(0, 1, 0);
     D3DXMatrixLookAtLH(&View, &vec1, &vec2, &vec3);
