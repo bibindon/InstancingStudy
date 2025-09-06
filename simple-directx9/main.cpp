@@ -304,13 +304,13 @@ void InitD3D(HWND hWnd)
     D3DVERTEXELEMENT9 declElems[] =
     {
         // POSITION
-        { 0, 0, D3DDECLTYPE_FLOAT4, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, 0 },
+        { 0, 0, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, 0 },
 
         // NORMAL0
-        { 0, 4, D3DDECLTYPE_FLOAT4, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_NORMAL, 0 },
+        { 0, 12, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_NORMAL, 0 },
 
         // TEXCOORD0
-        { 0, 8, D3DDECLTYPE_FLOAT4, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TEXCOORD, 0 },
+        { 0, 24, D3DDECLTYPE_FLOAT2, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TEXCOORD, 0 },
 
         // TEXCOORD1
         // ƒ[ƒ‹ƒhˆÊ’u
@@ -362,9 +362,12 @@ void Render()
     hResult = g_pEffect->SetMatrix("g_matWorldViewProj", &mat);
     assert(hResult == S_OK);
 
-    g_pd3dDevice->SetStreamSourceFreq(0, D3DSTREAMSOURCE_INSTANCEDATA | 1);
+//    g_pd3dDevice->SetStreamSourceFreq(0, D3DSTREAMSOURCE_INSTANCEDATA | 1);
+//    g_pd3dDevice->SetStreamSource(0, m_worldPosBuf, 0, sizeof(WorldPos));
+
+    g_pd3dDevice->SetStreamSource(1, m_worldPosBuf, 0, sizeof(WorldPos));
     g_pd3dDevice->SetVertexDeclaration(m_decl);
-    g_pd3dDevice->SetStreamSource(0, m_worldPosBuf, 0, sizeof(WorldPos));
+    g_pd3dDevice->SetStreamSourceFreq(1, D3DSTREAMSOURCE_INSTANCEDATA | tipNum);
 
     hResult = g_pd3dDevice->Clear(0,
                                   NULL,
@@ -410,7 +413,7 @@ void Render()
     hResult = g_pEffect->End();
     assert(hResult == S_OK);
 
-    g_pd3dDevice->SetStreamSourceFreq(0, 1);
+    g_pd3dDevice->SetStreamSourceFreq(1, 0);
 
     hResult = g_pd3dDevice->EndScene();
     assert(hResult == S_OK);
