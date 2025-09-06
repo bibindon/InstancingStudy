@@ -18,6 +18,8 @@ void VertexShader1(in  float4 inPosition  : POSITION,
                    out float4 outDiffuse  : COLOR0,
                    out float4 outTexCood  : TEXCOORD0)
 {
+    inPosition.x += inWorldPos.x;
+    inPosition.y += inWorldPos.y;
     outPosition = mul(inPosition, g_matWorldViewProj);
 
     float lightIntensity = dot(inNormal, g_lightNormal);
