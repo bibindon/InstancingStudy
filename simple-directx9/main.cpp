@@ -276,11 +276,11 @@ void Render()
 
     D3DXMatrixPerspectiveFovLH(&Proj,
                                D3DXToRadian(45),
-                               1600.0f / 900.0f,
+                               160.0f / 900.0f,
                                1.0f,
                                10000.0f);
 
-    D3DXVECTOR3 vec1(20 * sinf(f), 20, -20 * cosf(f));
+    D3DXVECTOR3 vec1(10 * sinf(f), 10, -10 * cosf(f));
     D3DXVECTOR3 vec2(0, 0, 0);
     D3DXVECTOR3 vec3(0, 1, 0);
     D3DXMatrixLookAtLH(&View, &vec1, &vec2, &vec3);
